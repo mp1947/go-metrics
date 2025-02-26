@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestHandleMetric(t *testing.T) {
+func TestHandleUpdateMetric(t *testing.T) {
 
 	type request struct {
 		method      string
