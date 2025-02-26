@@ -100,7 +100,7 @@ func (m *MemStorage) HandleGetMetric(
 			return
 		}
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(fmt.Sprintf("%f", v)))
+		w.Write([]byte(strconv.FormatFloat(v, 'f', -1, 64)))
 		return
 	case counterMetric:
 		v := m.Counter[metricName]
