@@ -7,14 +7,13 @@ import (
 )
 
 func main() {
-	mux := http.NewServeMux()
 
 	m := internal.MemStorage{
 		Gauge:   map[string]float64{},
 		Counter: map[string]int64{},
 	}
 
-	mux.HandleFunc("/update/{metricType}/{metricName}/{metricValue}", m.HandleMetric)
+	mux := internal.CreateMux(m)
 
 	if err := http.ListenAndServe(":8080", mux); err != nil {
 		panic(err)
