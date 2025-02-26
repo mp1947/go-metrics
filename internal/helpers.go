@@ -101,11 +101,11 @@ func CreateRouter(m MemStorage) *chi.Mux {
 	r.Use(middleware.Recoverer)
 
 	r.Route("/update", func(r chi.Router) {
-		r.Handle("/{metricType}/{metricName}/{metricValue}", http.HandlerFunc(m.HandleMetric))
+		r.Handle("/{metricType}/{metricName}/{metricValue}", http.HandlerFunc(m.HandleUpdateMetric))
 	})
 
 	r.Route("/value", func(r chi.Router) {
-		r.Handle("/{metricType}/{metricName}", http.HandlerFunc(m.HandleMetric))
+		r.Handle("/{metricType}/{metricName}", http.HandlerFunc(m.HandleGetMetric))
 	})
 	return r
 }
