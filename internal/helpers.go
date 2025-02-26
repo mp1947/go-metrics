@@ -16,6 +16,8 @@ import (
 const (
 	reportInterval = 10
 	pollInterval   = 2
+	gaugeMetric    = "gauge"
+	counterMetric  = "counter"
 )
 
 func (m *Metrics) SendToServer() {
@@ -100,6 +102,10 @@ func CreateRouter(m MemStorage) *chi.Mux {
 
 	r.Route("/update", func(r chi.Router) {
 		r.Handle("/{metricType}/{metricName}/{metricValue}", http.HandlerFunc(m.HandleMetric))
+	})
+
+	r.Route("/value", func(r chi.Router) {
+		r.Handle("/{metricType}/{metricName}", http.HandlerFunc(m.HandleMetric))
 	})
 	return r
 }

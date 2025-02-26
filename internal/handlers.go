@@ -10,28 +10,31 @@ import (
 
 func (m *MemStorage) HandleMetric(w http.ResponseWriter, r *http.Request) {
 
-	if r.Method == http.MethodPost {
-		// fmt.Println("this is a post request")
+	metricType := chi.URLParam(r, "metricType")
+	metricName := chi.URLParam(r, "metricName")
 
-		metricType := chi.URLParam(r, "metricType")
-		metricName := chi.URLParam(r, "metricName")
+	fmt.Printf(
+		"received metric with name: %s , type: %s \n",
+		metricName, metricType,
+	)
+
+	if metricName == "" || metricType == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	switch r.Method {
+	case http.MethodPost:
 		metricValue := chi.URLParam(r, "metricValue")
 
-		fmt.Printf(
-			"received metric with name: %s , type: %s , value: %s\n",
-			metricName, metricType, metricValue,
-		)
-
-		if metricName == "" || metricValue == "" || metricType == "" {
+		if metricValue == "" {
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
 
-		fmt.Printf("metrics map now: %v\n", m)
-
 		switch metricType {
 
-		case "gauge":
+		case gaugeMetric:
 			metricValueFloat, err := strconv.ParseFloat(metricValue, 64)
 			if err != nil {
 				fmt.Printf("error parsing float: %v", err)
@@ -42,7 +45,7 @@ func (m *MemStorage) HandleMetric(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusOK)
 			return
 
-		case "counter":
+		case counterMetric:
 			metricValueInt, err := strconv.ParseInt(metricValue, 10, 64)
 			if err != nil {
 				fmt.Printf("error parsing int: %v", err)
@@ -58,6 +61,33 @@ func (m *MemStorage) HandleMetric(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+	case http.MethodGet:
+		switch metricType {
+		case gaugeMetric:
+			v := m.Gauge[metricName]
+			if v == float64(0) {
+				w.WriteHeader(http.StatusNotFound)
+				return
+			}
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte(fmt.Sprintf("%f", v)))
+			return
+		case counterMetric:
+			v := m.Counter[metricName]
+			if v > 0 {
+				w.WriteHeader(http.StatusOK)
+				w.Write([]byte(fmt.Sprintf("%d", v)))
+				return
+			}
+			w.WriteHeader(http.StatusNotFound)
+			return
+		default:
+			w.WriteHeader(http.StatusNotFound)
+			return
+		}
+
+	default:
+		w.WriteHeader(http.StatusBadRequest)
+		return
 	}
-	w.WriteHeader(http.StatusBadRequest)
 }
