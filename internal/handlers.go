@@ -4,22 +4,29 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+
+	"github.com/go-chi/chi"
 )
 
 func (m *MemStorage) HandleMetric(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method == http.MethodPost {
+		// fmt.Println("this is a post request")
 
-		metricType := r.PathValue("metricType")
-		metricName := r.PathValue("metricName")
-		metricValue := r.PathValue("metricValue")
+		metricType := chi.URLParam(r, "metricType")
+		metricName := chi.URLParam(r, "metricName")
+		metricValue := chi.URLParam(r, "metricValue")
+
+		fmt.Printf(
+			"received metric with name: %s , type: %s , value: %s\n",
+			metricName, metricType, metricValue,
+		)
 
 		if metricName == "" || metricValue == "" || metricType == "" {
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
 
-		// fmt.Printf("received metric with name: %s , type: %s , value: %s\n", metricName, metricType, metricValue)
 		fmt.Printf("metrics map now: %v\n", m)
 
 		switch metricType {

@@ -8,6 +8,9 @@ import (
 	"reflect"
 	"runtime"
 	"time"
+
+	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/middleware"
 )
 
 const (
@@ -87,8 +90,16 @@ func (m Metrics) PollMetrics() {
 	}
 }
 
-func CreateMux(m MemStorage) *http.ServeMux {
-	mux := http.NewServeMux()
-	mux.HandleFunc("/update/{metricType}/{metricName}/{metricValue}", m.HandleMetric)
-	return mux
+func CreateRouter(m MemStorage) *chi.Mux {
+
+	r := chi.NewRouter()
+
+	r.Use(middleware.RealIP)
+	r.Use(middleware.Logger)
+	r.Use(middleware.Recoverer)
+
+	r.Route("/update", func(r chi.Router) {
+		r.Handle("/{metricType}/{metricName}/{metricValue}", http.HandlerFunc(m.HandleMetric))
+	})
+	return r
 }

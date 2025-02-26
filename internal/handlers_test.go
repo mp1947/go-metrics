@@ -66,11 +66,11 @@ func TestHandleMetric(t *testing.T) {
 		Counter: make(map[string]int64),
 	}
 
-	mux := CreateMux(m)
+	r := CreateRouter(m)
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			srv := httptest.NewServer(mux)
+			srv := httptest.NewServer(r)
 
 			defer srv.Close()
 

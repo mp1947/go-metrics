@@ -13,7 +13,7 @@ func main() {
 		Counter: map[string]int64{},
 	}
 
-	mux := internal.CreateMux(m)
+	mux := internal.CreateRouter(m)
 
 	if err := http.ListenAndServe(":8080", mux); err != nil {
 		panic(err)
